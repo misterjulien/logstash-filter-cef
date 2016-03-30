@@ -58,9 +58,9 @@ class LogStash::Filters::CEF < LogStash::Filters::Base
 	  version = event['cef_version'].sub /^CEF:/, ''
 	  event['cef_version'] = version
 
-	  # Strip any whitespace from the beginning and end of the message
 	  if not message.nil? and message.include? '='
-		message = message.strip
+		# Strip any whitespace from the beginning and end of the message
+	    message = message.strip
 
 		# If the last KVP has no value, add an empty string, this prevents hash errors below
 		if message.end_with?("=")
@@ -71,17 +71,17 @@ class LogStash::Filters::CEF < LogStash::Filters::Base
 	    extensions = {}
 	    message = message.split(/ ([\w\.]+)=/)
 	    key, value = message.shift.split('=', 2)
-	    extensions[key] = value
+		#extensions[key] = value
+	    event[key] = value
 
-	    Hash[*message].each{ |k, v| extensions[k] = v }
+		#Hash[*message].each{ |k, v| extensions[k] = v }
+	    Hash[*message].each{ |k, v| event[k] = v }
 
 	    # And save the new has as the extensions
-	    event[@target] = extensions
+		# I couldn't get @target to work, so for now the keys are top level
+	    #event[@target] = extensions
 	  end
 
-	  # Replace the event message with our message as configured in the
-	  # config file.
-	  #event["message"] = @source
     end
 
 	# filter_matched should go in the last line of our successful code
